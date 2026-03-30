@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+TOOL_NAME="keepmesane"
+VERSION="${ASDF_INSTALL_VERSION}"
+R2_URL="https://pub-508609135146446e8f26cb60c3330e02.r2.dev"
+
+# Detect platform
+OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
+ARCH="$(uname -m)"
+case "$ARCH" in
+  x86_64) ARCH="amd64" ;;
+  aarch64|arm64) ARCH="arm64" ;;
+  *) echo "Unsupported architecture: $ARCH" >&2; exit 1 ;;
+esac
+
+TARBALL="${TOOL_NAME}-v${VERSION}-${OS}-${ARCH}.tar.gz"
+DOWNLOAD_URL="${R2_URL}/${TOOL_NAME}/v${VERSION}/${TARBALL}"
+CHECKSUM_URL="${DOWNLOAD_URL}.sha256"
+
+echo "Downloading ${TOOL_NAME} v${VERSION} for ${OS}-${ARCH}..."
+mkdir -p "${ASDF_DOWNLOAD_PATH}"
+curl -fSL "$DOWNLOAD_URL" -o "${ASDF_DOWNLOAD_PATH}/${TARBALL}"
+
+# Verify checksum
+EXPECTED_SHA=$(curl -fsSL "$CHECKSUM_URL" | awk '{print $1}')
+if command -v sha256sum &>/dev/null; then
+  ACTUAL_SHA=$(sha256sum "${ASDF_DOWNLOAD_PATH}/${TARBALL}" | awk '{print $1}')
+elif command -v shasum &>/dev/null; then
+  ACTUAL_SHA=$(shasum -a 256 "${ASDF_DOWNLOAD_PATH}/${TARBALL}" | awk '{print $1}')
+else
+  echo "Warning: no sha256sum or shasum found, skipping checksum verification" >&2
+  ACTUAL_SHA="$EXPECTED_SHA"
+fi
+
+if [ "$EXPECTED_SHA" != "$ACTUAL_SHA" ]; then
+  echo "Checksum mismatch! Expected: $EXPECTED_SHA, Got: $ACTUAL_SHA" >&2
+  exit 1
+fi
+echo "Checksum verified."
+
+# Extract
+tar -xzf "${ASDF_DOWNLOAD_PATH}/${TARBALL}" -C "${ASDF_DOWNLOAD_PATH}"
+rm "${ASDF_DOWNLOAD_PATH}/${TARBALL}"

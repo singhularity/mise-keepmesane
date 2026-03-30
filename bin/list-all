@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PLUGIN_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+VERSIONS_FILE="$PLUGIN_DIR/share/versions.txt"
+
+if [ -f "$VERSIONS_FILE" ]; then
+  cat "$VERSIONS_FILE" | tr '
+' ' '
+else
+  echo ""
+fi

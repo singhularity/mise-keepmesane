@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+mkdir -p "${ASDF_INSTALL_PATH}/bin"
+
+# Copy all binaries from download path
+find "${ASDF_DOWNLOAD_PATH}" -type f -executable -exec cp {} "${ASDF_INSTALL_PATH}/bin/" \;
+
+# Ensure all binaries are executable
+chmod +x "${ASDF_INSTALL_PATH}/bin/"*
+
+echo "Installed to ${ASDF_INSTALL_PATH}/bin"
