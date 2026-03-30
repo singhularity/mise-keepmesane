@@ -3,7 +3,7 @@ set -euo pipefail
 
 TOOL_NAME="keepmesane"
 VERSION="${ASDF_INSTALL_VERSION}"
-R2_URL="https://pub-508609135146446e8f26cb60c3330e02.r2.dev"
+R2_URL="https://pub-6960894e747c4eacaf9e78494e0c9286.r2.dev"
 
 # Detect platform
 OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
